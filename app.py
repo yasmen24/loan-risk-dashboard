@@ -10,82 +10,30 @@ st.set_page_config(page_title="Loan Risk Dashboard", page_icon="💳", layout="w
 # ── STYLE ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    html, body, [class*="css"] {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #071a0f !important;
+    html, body, [class*="css"] { font-family: 'Segoe UI', sans-serif; }
+    [data-testid="stMetricLabel"] { font-size: 13px !important; color: #a0aec0 !important; font-weight: 600 !important; }
+    [data-testid="stMetricValue"] { font-size: 28px !important; font-weight: 700 !important; }
+    [data-testid="stMetricDelta"] { font-size: 12px !important; }
+    .block-title {
+        font-size: 16px; font-weight: 700; color: #e8eef6;
+        padding: 6px 12px; background: #1a202c;
+        border-left: 4px solid #00d4aa;
+        border-radius: 4px; margin-bottom: 12px;
     }
-    .stApp {
-        background: radial-gradient(ellipse at top left, #0d2b18 0%, #071a0f 50%, #030f08 100%);
-        background-attachment: fixed;
+    .hint {
+        font-size: 12px; color: #718096; margin-top: 6px;
+        padding: 6px 10px; background: #1a202c; border-radius: 4px;
     }
+    /* Remove extra spacing */
     .main .block-container {
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
-        background: transparent;
     }
-    /* Collapse default Streamlit gaps */
     .element-container { margin-bottom: 0 !important; }
     [data-testid="stVerticalBlock"] > div { gap: 0 !important; }
     div[data-testid="stHorizontalBlock"] { gap: 0.75rem !important; }
-    .element-container:has(hr) {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Metrics */
-    [data-testid="stMetricLabel"] { font-size: 13px !important; color: #6b7280 !important; font-weight: 600 !important; }
-    [data-testid="stMetricValue"] { font-size: 28px !important; font-weight: 700 !important; color: #111827 !important; }
-    [data-testid="stMetricDelta"] { font-size: 12px !important; }
-    [data-testid="metric-container"] {
-        background: linear-gradient(145deg, #ffffff, #f3f4f6);
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 14px 16px 10px !important;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    [data-testid="metric-container"]:hover {
-        border-color: #39d98a;
-        box-shadow: 0 4px 16px rgba(57,217,138,0.2);
-    }
-
-    /* Section titles */
-    .block-title {
-        font-size: 16px; font-weight: 700; color: #111827;
-        padding: 6px 12px;
-        background: linear-gradient(90deg, #f9fafb, #f3f4f6);
-        border-left: 4px solid #39d98a;
-        border-radius: 4px; margin-bottom: 12px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-
-    /* Hint boxes */
-    .hint {
-        font-size: 12px; color: #6b7280; margin-top: 6px;
-        padding: 6px 10px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 4px;
-    }
-
-    /* Dividers */
-    hr { border-color: #e5e7eb !important; margin: 0.3rem 0 !important; }
-
-    /* Selectboxes */
-    [data-testid="stSelectbox"] > div > div {
-        background: #ffffff !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        color: #111827 !important;
-    }
-    [data-testid="stSelectbox"] label { color: #6b7280 !important; font-size: 13px !important; }
-
-    /* Caption & scrollbar */
-    .stCaption { color: #2a5c3c !important; font-size: 11px !important; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #071a0f; }
-    ::-webkit-scrollbar-thumb { background: #1a4d2e; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #39d98a; }
+    .element-container:has(hr) { margin: 0 !important; padding: 0 !important; }
+    hr { margin: 0.3rem 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -99,21 +47,17 @@ df = load_data()
 
 # ── COLORS ─────────────────────────────────────────────────────────────────────
 PURPOSE_COLORS = {
-    "Home": "#39d98a", "Auto": "#5bc8f5",
-    "Education": "#f5c542", "Business": "#f0954a", "Other": "#a07af0",
+    "Home": "#00d4aa", "Auto": "#4f9eff",
+    "Education": "#ffc145", "Business": "#ff6b35", "Other": "#b06bff",
 }
-RISK_COLORS = {"Low": "#39d98a", "Medium": "#f5c542", "High": "#f05454"}
-
-SAFE = "#39d98a"
-MID  = "#f5c542"
-HIGH = "#f05454"
+RISK_COLORS = {"Low": "#00d4aa", "Medium": "#ffc145", "High": "#ff4560"}
 
 C = dict(
-    paper_bgcolor="#0a2014",
-    plot_bgcolor="#071a0f",
-    font=dict(color="#d4f5e2", size=13, family="Segoe UI"),
+    paper_bgcolor="#0e1117",
+    plot_bgcolor="#0e1117",
+    font=dict(color="#e8eef6", size=13, family="Segoe UI"),
     margin=dict(t=40, b=20, l=10, r=10),
-    title_font=dict(size=15, color="#d4f5e2"),
+    title_font=dict(size=15, color="#e8eef6"),
 )
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
@@ -209,31 +153,33 @@ with col1:
     purpose_stats["DefaultRate"] = (purpose_stats["Defaults"] / purpose_stats["Count"] * 100).round(1)
     purpose_stats = purpose_stats.sort_values("DefaultRate", ascending=True)
 
-    bar_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in purpose_stats["DefaultRate"]]
+    bar_colors = [
+        "#ff4560" if r > 20 else "#ffc145" if r > 12 else "#00d4aa"
+        for r in purpose_stats["DefaultRate"]
+    ]
 
     fig1 = go.Figure(go.Bar(
         x=purpose_stats["DefaultRate"],
         y=purpose_stats["LoanPurpose"],
         orientation="h",
         marker_color=bar_colors,
-        marker_line=dict(width=0),
         text=[f"{r:.1f}%  ({c:,} loans)" for r, c in zip(purpose_stats["DefaultRate"], purpose_stats["Count"])],
         textposition="outside",
-        textfont=dict(size=13, color="#d4f5e2"),
+        textfont=dict(size=13),
     ))
-    fig1.add_vline(x=12, line_dash="dash", line_color=MID,
+    fig1.add_vline(x=12, line_dash="dash", line_color="#ffc145",
                    annotation_text="Watch (12%)", annotation_position="top right",
-                   annotation_font=dict(color=MID, size=11))
-    fig1.add_vline(x=20, line_dash="dash", line_color=HIGH,
+                   annotation_font=dict(color="#ffc145", size=11))
+    fig1.add_vline(x=20, line_dash="dash", line_color="#ff4560",
                    annotation_text="Critical (20%)", annotation_position="top right",
-                   annotation_font=dict(color=HIGH, size=11))
+                   annotation_font=dict(color="#ff4560", size=11))
     fig1.update_layout(
         **C, title="Default Rate by Loan Purpose",
-        xaxis=dict(title="Default Rate %", gridcolor="#122b1c", range=[0, 40]),
+        xaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 40]),
         yaxis=dict(title=""), height=320,
     )
     st.plotly_chart(fig1, use_container_width=True)
-    st.markdown('<div class="hint">Green = healthy &nbsp;|&nbsp; Amber = watch &nbsp;|&nbsp; Red = critical &nbsp;|&nbsp; Dashed lines show thresholds</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hint">Green = healthy &nbsp;|&nbsp; Yellow = watch &nbsp;|&nbsp; Red = critical &nbsp;|&nbsp; Dashed lines show thresholds</div>', unsafe_allow_html=True)
 
 with col2:
     fc = filtered.copy()
@@ -253,15 +199,15 @@ with col2:
     fig2 = px.scatter(
         bubble_data, x="DTIBucket", y="LTIBucket",
         size="TotalLoans", color="DefaultRate",
-        color_continuous_scale=[SAFE, MID, HIGH],
+        color_continuous_scale=["#00d4aa", "#ffc145", "#ff4560"],
         hover_data={"DTIBucket": True, "LTIBucket": True,
                     "TotalLoans": True, "Defaults": True, "DefaultRate": True},
         size_max=40,
     )
     fig2.update_layout(
         **C, title="Loan Risk Bubble — DTI vs LTI",
-        xaxis=dict(title="DTI Level (Debt vs Income)  →  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
-        yaxis=dict(title="LTI Level (Loan vs Income)  ↑  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
+        xaxis=dict(title="DTI Level (Debt vs Income)  →  Higher = More Risk", tickfont=dict(size=12)),
+        yaxis=dict(title="LTI Level (Loan vs Income)  ↑  Higher = More Risk", tickfont=dict(size=12)),
         height=360, coloraxis_colorbar=dict(title="Default %")
     )
     st.plotly_chart(fig2, use_container_width=True)
@@ -285,30 +231,33 @@ with col3:
     ).reset_index()
     credit_stats["DefaultRate"] = (credit_stats["Defaults"] / credit_stats["Total"] * 100).round(1)
 
-    dot_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in credit_stats["DefaultRate"]]
+    dot_colors = [
+        "#ff4560" if r > 20 else "#ffc145" if r > 12 else "#00d4aa"
+        for r in credit_stats["DefaultRate"]
+    ]
 
     fig3 = go.Figure()
     fig3.add_trace(go.Scatter(
         x=credit_stats["CreditBand"].astype(str),
         y=credit_stats["DefaultRate"],
         mode="lines+markers+text",
-        line=dict(color="#1a5e35", width=3, shape="spline"),
+        line=dict(color="#4f9eff", width=3, shape="spline"),
         marker=dict(size=14, color=dot_colors, line=dict(color="white", width=2)),
         text=credit_stats["DefaultRate"].apply(lambda x: f"{x:.1f}%"),
         textposition="top center",
-        textfont=dict(size=13, color="#d4f5e2"),
+        textfont=dict(size=13, color="white"),
     ))
-    fig3.add_hrect(y0=0,  y1=12, fillcolor=SAFE, opacity=0.05, line_width=0)
-    fig3.add_hrect(y0=12, y1=20, fillcolor=MID,  opacity=0.05, line_width=0)
-    fig3.add_hrect(y0=20, y1=50, fillcolor=HIGH,  opacity=0.05, line_width=0)
-    fig3.add_hline(y=12, line_dash="dash", line_color=MID,
-                   annotation_text="Watch", annotation_font=dict(color=MID, size=11))
-    fig3.add_hline(y=20, line_dash="dash", line_color=HIGH,
-                   annotation_text="Critical", annotation_font=dict(color=HIGH, size=11))
+    fig3.add_hrect(y0=0,  y1=12, fillcolor="#00d4aa", opacity=0.05, line_width=0)
+    fig3.add_hrect(y0=12, y1=20, fillcolor="#ffc145", opacity=0.05, line_width=0)
+    fig3.add_hrect(y0=20, y1=50, fillcolor="#ff4560", opacity=0.05, line_width=0)
+    fig3.add_hline(y=12, line_dash="dash", line_color="#ffc145",
+                   annotation_text="Watch", annotation_font=dict(color="#ffc145", size=11))
+    fig3.add_hline(y=20, line_dash="dash", line_color="#ff4560",
+                   annotation_text="Critical", annotation_font=dict(color="#ff4560", size=11))
     fig3.update_layout(
         **C, title="Default Rate Drops as Credit Score Rises",
-        xaxis=dict(title="Credit Score Band", tickfont=dict(size=12), gridcolor="#122b1c"),
-        yaxis=dict(title="Default Rate %", gridcolor="#122b1c", range=[0, 50]),
+        xaxis=dict(title="Credit Score Band", tickfont=dict(size=12)),
+        yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 50]),
         height=340,
     )
     st.plotly_chart(fig3, use_container_width=True)
@@ -322,26 +271,28 @@ with col4:
     emp_stats["DefaultRate"] = (emp_stats["Defaults"] / emp_stats["Total"] * 100).round(1)
     emp_stats = emp_stats.sort_values("DefaultRate", ascending=False)
 
-    emp_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in emp_stats["DefaultRate"]]
+    emp_colors = [
+        "#ff4560" if r > 20 else "#ffc145" if r > 12 else "#00d4aa"
+        for r in emp_stats["DefaultRate"]
+    ]
 
     fig4 = go.Figure(go.Bar(
         x=emp_stats["EmploymentType"],
         y=emp_stats["DefaultRate"],
         marker_color=emp_colors,
-        marker_line=dict(width=0),
         text=emp_stats["DefaultRate"].apply(lambda x: f"{x:.1f}%"),
         textposition="outside",
-        textfont=dict(size=14, color="#d4f5e2"),
+        textfont=dict(size=14, color="white"),
         width=0.5,
     ))
-    fig4.add_hline(y=12, line_dash="dash", line_color=MID,
-                   annotation_text="Watch (12%)", annotation_font=dict(color=MID, size=11))
-    fig4.add_hline(y=20, line_dash="dash", line_color=HIGH,
-                   annotation_text="Critical (20%)", annotation_font=dict(color=HIGH, size=11))
+    fig4.add_hline(y=12, line_dash="dash", line_color="#ffc145",
+                   annotation_text="Watch (12%)", annotation_font=dict(color="#ffc145", size=11))
+    fig4.add_hline(y=20, line_dash="dash", line_color="#ff4560",
+                   annotation_text="Critical (20%)", annotation_font=dict(color="#ff4560", size=11))
     fig4.update_layout(
         **C, title="Default Rate by Employment Type",
-        xaxis=dict(title="", tickfont=dict(size=13), gridcolor="#122b1c"),
-        yaxis=dict(title="Default Rate %", gridcolor="#122b1c", range=[0, 55]),
+        xaxis=dict(title="", tickfont=dict(size=13)),
+        yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 55]),
         height=340,
     )
     st.plotly_chart(fig4, use_container_width=True)
@@ -369,23 +320,23 @@ with col5:
     fig5.add_trace(go.Bar(
         name="With Co-Signer", x=purposes,
         y=[with_cs.get(p, 0) for p in purposes],
-        marker_color=SAFE, marker_line=dict(width=0),
+        marker_color="#00d4aa",
         text=[f"{with_cs.get(p,0):.1f}%" for p in purposes],
-        textposition="outside", textfont=dict(size=12, color="#d4f5e2"),
+        textposition="outside", textfont=dict(size=12),
     ))
     fig5.add_trace(go.Bar(
         name="Without Co-Signer", x=purposes,
         y=[without_cs.get(p, 0) for p in purposes],
-        marker_color=HIGH, marker_line=dict(width=0),
+        marker_color="#ff4560",
         text=[f"{without_cs.get(p,0):.1f}%" for p in purposes],
-        textposition="outside", textfont=dict(size=12, color="#d4f5e2"),
+        textposition="outside", textfont=dict(size=12),
     ))
     fig5.update_layout(
         **C, title="Co-Signer Cuts Default Rate — by Loan Purpose",
         barmode="group",
-        xaxis=dict(title="", tickfont=dict(size=12), gridcolor="#122b1c"),
-        yaxis=dict(title="Default Rate %", gridcolor="#122b1c", range=[0, 40]),
-        legend=dict(bgcolor="#0a2014", font=dict(size=12), bordercolor="#1a4d2e", borderwidth=1),
+        xaxis=dict(title="", tickfont=dict(size=12)),
+        yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 40]),
+        legend=dict(bgcolor="#0e1117", font=dict(size=12)),
         height=360,
     )
     st.plotly_chart(fig5, use_container_width=True)
@@ -401,34 +352,37 @@ with col6:
     edu_stats["Education"]   = pd.Categorical(edu_stats["Education"], categories=edu_order, ordered=True)
     edu_stats = edu_stats.sort_values("Education")
 
-    dot_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in edu_stats["DefaultRate"]]
+    dot_colors = [
+        "#ff4560" if r > 20 else "#ffc145" if r > 12 else "#00d4aa"
+        for r in edu_stats["DefaultRate"]
+    ]
 
     fig6 = go.Figure()
     fig6.add_trace(go.Scatter(
         x=edu_stats["Education"].astype(str), y=edu_stats["DefaultRate"],
-        mode="lines", line=dict(color="#1a4d2e", width=3), showlegend=False,
+        mode="lines", line=dict(color="#2d3748", width=3), showlegend=False,
     ))
     fig6.add_trace(go.Scatter(
         x=edu_stats["Education"].astype(str), y=edu_stats["DefaultRate"],
         mode="markers+text",
         marker=dict(size=22, color=dot_colors, line=dict(color="white", width=2)),
         text=edu_stats["DefaultRate"].apply(lambda x: f"{x:.1f}%"),
-        textposition="top center", textfont=dict(size=13, color="#d4f5e2"),
+        textposition="top center", textfont=dict(size=13, color="white"),
         showlegend=False,
     ))
     for _, row in edu_stats.iterrows():
         fig6.add_annotation(
             x=str(row["Education"]), y=row["DefaultRate"] - 3.5,
             text=f"{row['Total']:,} loans", showarrow=False,
-            font=dict(size=11, color="#3a7a55"),
+            font=dict(size=11, color="#718096"),
         )
-    fig6.add_hrect(y0=0,  y1=12, fillcolor=SAFE, opacity=0.05, line_width=0)
-    fig6.add_hrect(y0=12, y1=20, fillcolor=MID,  opacity=0.05, line_width=0)
-    fig6.add_hrect(y0=20, y1=50, fillcolor=HIGH,  opacity=0.05, line_width=0)
+    fig6.add_hrect(y0=0,  y1=12, fillcolor="#00d4aa", opacity=0.05, line_width=0)
+    fig6.add_hrect(y0=12, y1=20, fillcolor="#ffc145", opacity=0.05, line_width=0)
+    fig6.add_hrect(y0=20, y1=50, fillcolor="#ff4560", opacity=0.05, line_width=0)
     fig6.update_layout(
         **C, title="Default Rate by Education Level",
-        xaxis=dict(title="", tickfont=dict(size=13), gridcolor="#122b1c"),
-        yaxis=dict(title="Default Rate %", gridcolor="#122b1c", range=[0, 45]),
+        xaxis=dict(title="", tickfont=dict(size=13)),
+        yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 45]),
         height=360,
     )
     st.plotly_chart(fig6, use_container_width=True)
