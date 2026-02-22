@@ -28,25 +28,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── LOAD DATA ──────────────────────────────────────────────────────────────────
+# Reads from the preprocessed clean file
+# LTIRatio and RiskTier are already calculated in data_preprocessing.py
 @st.cache_data
 def load_data():
-    df = pd.read_csv("Loan_default.csv")
-    df["LTIRatio"] = (df["LoanAmount"] / df["Income"]).round(2)
-
-    def risk_tier(row):
-        score = 0
-        if row["DTIRatio"] > 0.5:                 score += 2
-        if row["CreditScore"] < 580:              score += 2
-        if row["CreditScore"] < 670:              score += 1
-        if row["EmploymentType"] == "Unemployed": score += 3
-        if row["EmploymentType"] == "Part-time":  score += 1
-        if row["LTIRatio"] > 4:                   score += 2
-        if row["HasCoSigner"] == "Yes":           score -= 1
-        if score <= 2:   return "Low"
-        elif score <= 5: return "Medium"
-        else:            return "High"
-
-    df["RiskTier"] = df.apply(risk_tier, axis=1)
+    df = pd.read_csv("Loan_default_clean.csv")
     return df
 
 df = load_data()
@@ -120,51 +106,33 @@ st.markdown('<div class="block-title">📊 Portfolio Health</div>', unsafe_allow
 k1, k2, k3, k4, k5, k6 = st.columns(6)
 
 with k1:
-    st.metric(
-        "Total Loans",
-        f"{total:,}",
-        help="Total number of loans in the current filtered view. Changes when you apply filters above."
-    )
+    st.metric("Total Loans", f"{total:,}",
+              help="Total number of loans in the current filtered view.")
 with k2:
-    st.metric(
-        "Default Rate",
-        f"{default_rate:.1f}%",
-        delta="Critical" if default_rate > 20 else "Watch" if default_rate > 12 else "Healthy",
-        delta_color="inverse" if default_rate > 12 else "normal",
-        help="How many loans failed out of 100. Below 12% = healthy. Above 12% = needs attention. Above 20% = critical action required."
-    )
+    st.metric("Default Rate", f"{default_rate:.1f}%",
+              delta="Critical" if default_rate > 20 else "Watch" if default_rate > 12 else "Healthy",
+              delta_color="inverse" if default_rate > 12 else "normal",
+              help="How many loans failed out of 100. Below 12% = healthy. Above 12% = watch. Above 20% = critical.")
 with k3:
-    st.metric(
-        "Avg Credit Score",
-        f"{avg_credit:.0f}",
-        delta="Risky — below 670" if avg_credit < 670 else "Safe — above 670",
-        delta_color="inverse" if avg_credit < 670 else "normal",
-        help="Average credit score of all filtered borrowers. 300 = very poor history. 850 = perfect. The safe line is 670 — below it, default rates rise sharply."
-    )
+    st.metric("Avg Credit Score", f"{avg_credit:.0f}",
+              delta="Risky — below 670" if avg_credit < 670 else "Safe — above 670",
+              delta_color="inverse" if avg_credit < 670 else "normal",
+              help="Average credit score. Scale is 300–850. The safe line is 670 — below it default rates rise sharply.")
 with k4:
-    st.metric(
-        "Avg DTI Ratio",
-        f"{avg_dti:.2f}",
-        delta="Risky — above 0.5" if avg_dti > 0.5 else "Safe — below 0.5",
-        delta_color="inverse" if avg_dti > 0.5 else "normal",
-        help="DTI = Debt-to-Income. How much of the borrower's monthly income already goes to debt payments. 0.44 means 44% of income is gone before this loan. Above 0.5 is dangerous."
-    )
+    st.metric("Avg DTI Ratio", f"{avg_dti:.2f}",
+              delta="Risky — above 0.5" if avg_dti > 0.5 else "Safe — below 0.5",
+              delta_color="inverse" if avg_dti > 0.5 else "normal",
+              help="DTI = Debt-to-Income. How much of monthly income already goes to debt payments. Above 0.5 is dangerous.")
 with k5:
-    st.metric(
-        "Avg LTI Ratio",
-        f"{avg_lti:.2f}",
-        delta="Overextended — above 4" if avg_lti > 4 else "Manageable",
-        delta_color="inverse" if avg_lti > 4 else "normal",
-        help="LTI = Loan-to-Income. The loan amount divided by annual income. LTI of 3.2 means the average borrower borrowed 3.2x their yearly salary. Above 4 = very stretched."
-    )
+    st.metric("Avg LTI Ratio", f"{avg_lti:.2f}",
+              delta="Overextended — above 4" if avg_lti > 4 else "Manageable",
+              delta_color="inverse" if avg_lti > 4 else "normal",
+              help="LTI = Loan-to-Income. Loan amount divided by annual income. Above 4 means borrower is very stretched.")
 with k6:
-    st.metric(
-        "High Risk Loans",
-        f"{high_pct:.1f}%",
-        delta=f"{risk_counts.get('High', 0):,} loans in danger",
-        delta_color="inverse" if high_pct > 25 else "off",
-        help="Percentage of loans scored as High Risk. Calculated from: DTI + Credit Score + Employment + LTI + Co-Signer. Above 25% means your portfolio has a serious concentration of dangerous loans."
-    )
+    st.metric("High Risk Loans", f"{high_pct:.1f}%",
+              delta=f"{risk_counts.get('High', 0):,} loans in danger",
+              delta_color="inverse" if high_pct > 25 else "off",
+              help="Percentage scored as High Risk using DTI + Credit Score + Employment + LTI + Co-Signer. Above 25% is serious.")
 
 st.markdown("---")
 
@@ -204,11 +172,9 @@ with col1:
                    annotation_text="Critical (20%)", annotation_position="top right",
                    annotation_font=dict(color="#ff4560", size=11))
     fig1.update_layout(
-        **C,
-        title="Default Rate by Loan Purpose",
+        **C, title="Default Rate by Loan Purpose",
         xaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 40]),
-        yaxis=dict(title=""),
-        height=320,
+        yaxis=dict(title=""), height=320,
     )
     st.plotly_chart(fig1, use_container_width=True)
     st.markdown('<div class="hint">Green = healthy &nbsp;|&nbsp; Yellow = watch &nbsp;|&nbsp; Red = critical &nbsp;|&nbsp; Dashed lines show thresholds</div>', unsafe_allow_html=True)
@@ -229,23 +195,18 @@ with col2:
     bubble_data["DefaultRate"] = (bubble_data["Defaults"] / bubble_data["TotalLoans"] * 100).round(1)
 
     fig2 = px.scatter(
-        bubble_data,
-        x="DTIBucket",
-        y="LTIBucket",
-        size="TotalLoans",
-        color="DefaultRate",
+        bubble_data, x="DTIBucket", y="LTIBucket",
+        size="TotalLoans", color="DefaultRate",
         color_continuous_scale=["#00d4aa", "#ffc145", "#ff4560"],
         hover_data={"DTIBucket": True, "LTIBucket": True,
                     "TotalLoans": True, "Defaults": True, "DefaultRate": True},
         size_max=40,
     )
     fig2.update_layout(
-        **C,
-        title="Loan Risk Bubble — DTI vs LTI",
+        **C, title="Loan Risk Bubble — DTI vs LTI",
         xaxis=dict(title="DTI Level (Debt vs Income)  →  Higher = More Risk", tickfont=dict(size=12)),
         yaxis=dict(title="LTI Level (Loan vs Income)  ↑  Higher = More Risk", tickfont=dict(size=12)),
-        height=360,
-        coloraxis_colorbar=dict(title="Default %")
+        height=360, coloraxis_colorbar=dict(title="Default %")
     )
     st.plotly_chart(fig2, use_container_width=True)
     st.markdown('<div class="hint">Bubble size = number of loans &nbsp;|&nbsp; Color = default rate &nbsp;|&nbsp; Top-right = highest risk group</div>', unsafe_allow_html=True)
@@ -294,8 +255,7 @@ with col3:
     fig3.add_hline(y=20, line_dash="dash", line_color="#ff4560",
                    annotation_text="Critical", annotation_font=dict(color="#ff4560", size=11))
     fig3.update_layout(
-        **C,
-        title="Default Rate Drops as Credit Score Rises",
+        **C, title="Default Rate Drops as Credit Score Rises",
         xaxis=dict(title="Credit Score Band", tickfont=dict(size=12)),
         yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 50]),
         height=340,
@@ -330,8 +290,7 @@ with col4:
     fig4.add_hline(y=20, line_dash="dash", line_color="#ff4560",
                    annotation_text="Critical (20%)", annotation_font=dict(color="#ff4560", size=11))
     fig4.update_layout(
-        **C,
-        title="Default Rate by Employment Type",
+        **C, title="Default Rate by Employment Type",
         xaxis=dict(title="", tickfont=dict(size=13)),
         yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 55]),
         height=340,
@@ -361,26 +320,21 @@ with col5:
 
     fig5 = go.Figure()
     fig5.add_trace(go.Bar(
-        name="With Co-Signer",
-        x=purposes,
+        name="With Co-Signer", x=purposes,
         y=[with_cs.get(p, 0) for p in purposes],
         marker_color="#00d4aa",
         text=[f"{with_cs.get(p,0):.1f}%" for p in purposes],
-        textposition="outside",
-        textfont=dict(size=12),
+        textposition="outside", textfont=dict(size=12),
     ))
     fig5.add_trace(go.Bar(
-        name="Without Co-Signer",
-        x=purposes,
+        name="Without Co-Signer", x=purposes,
         y=[without_cs.get(p, 0) for p in purposes],
         marker_color="#ff4560",
         text=[f"{without_cs.get(p,0):.1f}%" for p in purposes],
-        textposition="outside",
-        textfont=dict(size=12),
+        textposition="outside", textfont=dict(size=12),
     ))
     fig5.update_layout(
-        **C,
-        title="Co-Signer Cuts Default Rate — by Loan Purpose",
+        **C, title="Co-Signer Cuts Default Rate — by Loan Purpose",
         barmode="group",
         xaxis=dict(title="", tickfont=dict(size=12)),
         yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 40]),
@@ -407,36 +361,28 @@ with col6:
 
     fig6 = go.Figure()
     fig6.add_trace(go.Scatter(
-        x=edu_stats["Education"].astype(str),
-        y=edu_stats["DefaultRate"],
-        mode="lines",
-        line=dict(color="#2d3748", width=3),
-        showlegend=False,
+        x=edu_stats["Education"].astype(str), y=edu_stats["DefaultRate"],
+        mode="lines", line=dict(color="#2d3748", width=3), showlegend=False,
     ))
     fig6.add_trace(go.Scatter(
-        x=edu_stats["Education"].astype(str),
-        y=edu_stats["DefaultRate"],
+        x=edu_stats["Education"].astype(str), y=edu_stats["DefaultRate"],
         mode="markers+text",
         marker=dict(size=22, color=dot_colors, line=dict(color="white", width=2)),
         text=edu_stats["DefaultRate"].apply(lambda x: f"{x:.1f}%"),
-        textposition="top center",
-        textfont=dict(size=13, color="white"),
+        textposition="top center", textfont=dict(size=13, color="white"),
         showlegend=False,
     ))
     for _, row in edu_stats.iterrows():
         fig6.add_annotation(
-            x=str(row["Education"]),
-            y=row["DefaultRate"] - 3.5,
-            text=f"{row['Total']:,} loans",
-            showarrow=False,
+            x=str(row["Education"]), y=row["DefaultRate"] - 3.5,
+            text=f"{row['Total']:,} loans", showarrow=False,
             font=dict(size=11, color="#718096"),
         )
     fig6.add_hrect(y0=0,  y1=12, fillcolor="#00d4aa", opacity=0.05, line_width=0)
     fig6.add_hrect(y0=12, y1=20, fillcolor="#ffc145", opacity=0.05, line_width=0)
     fig6.add_hrect(y0=20, y1=50, fillcolor="#ff4560", opacity=0.05, line_width=0)
     fig6.update_layout(
-        **C,
-        title="Default Rate by Education Level",
+        **C, title="Default Rate by Education Level",
         xaxis=dict(title="", tickfont=dict(size=13)),
         yaxis=dict(title="Default Rate %", gridcolor="#1e2736", range=[0, 45]),
         height=360,
@@ -445,4 +391,4 @@ with col6:
     st.markdown('<div class="hint">Each dot = one education group &nbsp;|&nbsp; Green = safe &nbsp;|&nbsp; Red = high risk &nbsp;|&nbsp; Number below = loan count</div>', unsafe_allow_html=True)
 
 st.markdown("---")
-st.caption("Loan Risk Dashboard · Filters: Loan Purpose | Employment Type | Risk Tier")
+st.caption("Loan Risk Dashboard · Source: Loan_default_clean.csv · Preprocessed by data_preprocessing.py")
