@@ -24,20 +24,13 @@ st.markdown("""
         font-size: 12px; color: #718096; margin-top: 6px;
         padding: 6px 10px; background: #1a202c; border-radius: 4px;
     }
-    /* Remove extra spacing */
-    .main .block-container {
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-    }
-    .element-container { margin-bottom: 0 !important; }
-    [data-testid="stVerticalBlock"] > div { gap: 0 !important; }
-    div[data-testid="stHorizontalBlock"] { gap: 0.75rem !important; }
-    .element-container:has(hr) { margin: 0 !important; padding: 0 !important; }
-    hr { margin: 0.3rem 0 !important; }
+    .main .block-container { padding-top: 0.5rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── LOAD DATA ──────────────────────────────────────────────────────────────────
+# Reads from the preprocessed clean file
+# LTIRatio and RiskTier are already calculated in data_preprocessing.py
 @st.cache_data
 def load_data():
     df = pd.read_csv("Loan_default_clean.csv")
@@ -56,7 +49,7 @@ C = dict(
     paper_bgcolor="#0e1117",
     plot_bgcolor="#0e1117",
     font=dict(color="#e8eef6", size=13, family="Segoe UI"),
-    margin=dict(t=40, b=20, l=10, r=10),
+    margin=dict(t=50, b=40, l=10, r=10),
     title_font=dict(size=15, color="#e8eef6"),
 )
 
@@ -109,6 +102,7 @@ high_pct     = risk_counts.get("High", 0) / total * 100 if total else 0
 st.markdown('<div class="block-title">📊 Portfolio Health</div>', unsafe_allow_html=True)
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
+
 with k1:
     st.metric("Total Loans", f"{total:,}",
               help="Total number of loans in the current filtered view.")
@@ -137,6 +131,8 @@ with k6:
               delta=f"{risk_counts.get('High', 0):,} loans in danger",
               delta_color="inverse" if high_pct > 25 else "off",
               help="Percentage scored as High Risk using DTI + Credit Score + Employment + LTI + Co-Signer. Above 25% is serious.")
+
+st.markdown("---")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 2 — WHICH LOAN TYPE IS THE PROBLEM?
@@ -212,6 +208,8 @@ with col2:
     )
     st.plotly_chart(fig2, use_container_width=True)
     st.markdown('<div class="hint">Bubble size = number of loans &nbsp;|&nbsp; Color = default rate &nbsp;|&nbsp; Top-right = highest risk group</div>', unsafe_allow_html=True)
+
+st.markdown("---")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 3 — WHO IS THE RISKY BORROWER?
@@ -297,6 +295,8 @@ with col4:
     )
     st.plotly_chart(fig4, use_container_width=True)
     st.markdown('<div class="hint">Unemployed borrowers default roughly 3x more than full-time borrowers</div>', unsafe_allow_html=True)
+
+st.markdown("---")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 4 — TWO QUICK WINS
@@ -388,4 +388,5 @@ with col6:
     st.plotly_chart(fig6, use_container_width=True)
     st.markdown('<div class="hint">Each dot = one education group &nbsp;|&nbsp; Green = safe &nbsp;|&nbsp; Red = high risk &nbsp;|&nbsp; Number below = loan count</div>', unsafe_allow_html=True)
 
+st.markdown("---")
 st.caption("Loan Risk Dashboard · Source: Loan_default_clean.csv · Preprocessed by data_preprocessing.py")
