@@ -34,13 +34,8 @@ The project moved through five clear stages to go from raw data to a working das
 
 ## 📸 Dashboard Screenshots
 
-> *Add screenshots of the live dashboard here. Recommended sections to capture: the Portfolio Health metrics row, the Default Rate by Loan Purpose chart, and the Co-Signer comparison.*
-
-```
-![Portfolio Health](screenshots/portfolio_health.png)
-![Loan Purpose Risk](screenshots/loan_purpose.png)
-![Co-Signer Impact](screenshots/cosigner.png)
-```
+<img width="2874" height="1264" alt="image" src="https://github.com/user-attachments/assets/0b5914bd-9e85-4c02-b99c-b469172f930f" />
+<img width="2802" height="1371" alt="image" src="https://github.com/user-attachments/assets/eb63b7be-0470-4995-af4a-7f6b89ffbccd" />
 
 ---
 
