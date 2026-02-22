@@ -10,153 +10,74 @@ st.set_page_config(page_title="Loan Risk Dashboard", page_icon="💳", layout="w
 # ── STYLE ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap');
-
     html, body, [class*="css"] {
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Segoe UI', sans-serif;
         background-color: #071a0f !important;
     }
-
-    /* ── Main background ── */
     .stApp {
         background: radial-gradient(ellipse at top left, #0d2b18 0%, #071a0f 50%, #030f08 100%);
         background-attachment: fixed;
     }
-
-    /* ── Sidebar / main content block ── */
     .main .block-container {
-        background: transparent;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+        background: transparent;
     }
-
-    /* ── Remove default streamlit element spacing ── */
+    /* Collapse default Streamlit gaps */
     .element-container { margin-bottom: 0 !important; }
     [data-testid="stVerticalBlock"] > div { gap: 0 !important; }
     div[data-testid="stHorizontalBlock"] { gap: 0.75rem !important; }
-
-    /* ── Header ── */
-    h2 {
-        font-family: 'Syne', sans-serif !important;
-        font-size: 2rem !important;
-        font-weight: 800 !important;
-        background: linear-gradient(135deg, #39d98a 0%, #b5f5d0 60%, #7eeaaa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: -0.5px;
+    .element-container:has(hr) {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* ── Metrics ── */
-    [data-testid="stMetricLabel"] {
-        font-family: 'DM Mono', monospace !important;
-        font-size: 11px !important;
-        color: #52a871 !important;
-        font-weight: 500 !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    [data-testid="stMetricValue"] {
-        font-family: 'Syne', sans-serif !important;
-        font-size: 26px !important;
-        font-weight: 700 !important;
-        color: #d4f5e2 !important;
-    }
-    [data-testid="stMetricDelta"] {
-        font-size: 11px !important;
-        font-family: 'DM Mono', monospace !important;
-    }
-
+    /* Metrics */
+    [data-testid="stMetricLabel"] { font-size: 13px !important; color: #52a871 !important; font-weight: 600 !important; }
+    [data-testid="stMetricValue"] { font-size: 28px !important; font-weight: 700 !important; color: #d4f5e2 !important; }
+    [data-testid="stMetricDelta"] { font-size: 12px !important; }
     [data-testid="metric-container"] {
         background: linear-gradient(145deg, #0d2b18, #0a2014);
         border: 1px solid #1a4d2e;
-        border-radius: 12px;
-        padding: 16px 18px 12px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(57,217,138,0.08);
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 10px;
+        padding: 14px 16px 10px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        transition: border-color 0.2s ease;
     }
-    [data-testid="metric-container"]:hover {
-        border-color: #39d98a;
-        box-shadow: 0 4px 28px rgba(57,217,138,0.15), inset 0 1px 0 rgba(57,217,138,0.12);
+    [data-testid="metric-container"]:hover { border-color: #39d98a; }
+
+    /* Section titles */
+    .block-title {
+        font-size: 16px; font-weight: 700; color: #d4f5e2;
+        padding: 6px 12px;
+        background: linear-gradient(90deg, #0d2b18, #071a0f);
+        border-left: 4px solid #39d98a;
+        border-radius: 4px; margin-bottom: 12px;
     }
 
-    /* ── Selectboxes ── */
+    /* Hint boxes */
+    .hint {
+        font-size: 12px; color: #3a7a55; margin-top: 6px;
+        padding: 6px 10px;
+        background: #071a0f;
+        border: 1px solid #122b1c;
+        border-radius: 4px;
+    }
+
+    /* Dividers */
+    hr { border-color: #122b1c !important; margin: 0.3rem 0 !important; }
+
+    /* Selectboxes */
     [data-testid="stSelectbox"] > div > div {
         background: #0d2b18 !important;
         border: 1px solid #1a4d2e !important;
         border-radius: 8px !important;
         color: #d4f5e2 !important;
-        font-family: 'DM Sans', sans-serif !important;
     }
-    [data-testid="stSelectbox"] label {
-        color: #52a871 !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 11px !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+    [data-testid="stSelectbox"] label { color: #52a871 !important; font-size: 13px !important; }
 
-    /* ── Section title blocks ── */
-    .block-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: #d4f5e2;
-        padding: 8px 14px;
-        background: linear-gradient(90deg, #0d2b18, #071a0f);
-        border-left: 3px solid #39d98a;
-        border-radius: 6px;
-        margin-bottom: 14px;
-        letter-spacing: 0.3px;
-        box-shadow: inset 0 0 30px rgba(57,217,138,0.04);
-    }
-
-    /* ── Hint boxes ── */
-    .hint {
-        font-family: 'DM Mono', monospace;
-        font-size: 11px;
-        color: #3a7a55;
-        margin-top: 6px;
-        padding: 7px 12px;
-        background: #071a0f;
-        border: 1px solid #122b1c;
-        border-radius: 6px;
-        letter-spacing: 0.3px;
-    }
-
-    /* ── Dividers ── */
-    hr {
-        border-color: #122b1c !important;
-        margin: 0.2rem 0 !important;
-    }
-
-    /* Remove Streamlit's default block padding around dividers and sections */
-    [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"],
-    [data-testid="stVerticalBlock"] > div {
-        gap: 0 !important;
-    }
-
-    .element-container:has(hr) {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-
-    /* ── Plotly charts background override ── */
-    .js-plotly-plot {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    /* ── Caption ── */
-    .stCaption {
-        color: #2a5c3c !important;
-        font-family: 'DM Mono', monospace !important;
-        font-size: 11px !important;
-    }
-
-    /* ── Scrollbar ── */
+    /* Caption & scrollbar */
+    .stCaption { color: #2a5c3c !important; font-size: 11px !important; }
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #071a0f; }
     ::-webkit-scrollbar-thumb { background: #1a4d2e; border-radius: 3px; }
@@ -172,31 +93,23 @@ def load_data():
 
 df = load_data()
 
-# ── COLOR PALETTE ──────────────────────────────────────────────────────────────
-# Dark green theme palette
-ACCENT      = "#39d98a"    # bright mint green
-WARN        = "#f5c542"    # amber
-DANGER      = "#f05454"    # coral red
-SAFE        = "#39d98a"
-MID         = "#f5c542"
-HIGH        = "#f05454"
-
+# ── COLORS ─────────────────────────────────────────────────────────────────────
 PURPOSE_COLORS = {
-    "Home":      "#39d98a",
-    "Auto":      "#5bc8f5",
-    "Education": "#f5c542",
-    "Business":  "#f0954a",
-    "Other":     "#a07af0",
+    "Home": "#39d98a", "Auto": "#5bc8f5",
+    "Education": "#f5c542", "Business": "#f0954a", "Other": "#a07af0",
 }
-RISK_COLORS = {"Low": SAFE, "Medium": MID, "High": HIGH}
+RISK_COLORS = {"Low": "#39d98a", "Medium": "#f5c542", "High": "#f05454"}
 
-# ── PLOTLY BASE LAYOUT ─────────────────────────────────────────────────────────
+SAFE = "#39d98a"
+MID  = "#f5c542"
+HIGH = "#f05454"
+
 C = dict(
     paper_bgcolor="#0a2014",
     plot_bgcolor="#071a0f",
-    font=dict(color="#b5f5d0", size=13, family="DM Sans"),
+    font=dict(color="#d4f5e2", size=13, family="Segoe UI"),
     margin=dict(t=40, b=20, l=10, r=10),
-    title_font=dict(size=15, color="#d4f5e2", family="Syne"),
+    title_font=dict(size=15, color="#d4f5e2"),
 )
 
 # ── HEADER ─────────────────────────────────────────────────────────────────────
@@ -208,7 +121,7 @@ with f1:
     purpose_filter = st.selectbox(
         "Loan Purpose",
         ["All"] + sorted(df["LoanPurpose"].unique().tolist()),
-        help="Filter all charts by the reason the loan was taken."
+        help="Filter all charts by the reason the loan was taken. Example: select 'Business' to see only business loans."
     )
 with f2:
     emp_filter = st.selectbox(
@@ -220,7 +133,7 @@ with f3:
     risk_filter = st.selectbox(
         "Risk Tier",
         ["All", "Low", "Medium", "High"],
-        help="Low = safe borrowers (score 0–2). Medium = some risk (3–5). High = red flags (6+)."
+        help="Low = safe borrowers (score 0–2). Medium = some risk factors (score 3–5). High = multiple red flags (score 6+)."
     )
 
 # ── APPLY FILTERS ──────────────────────────────────────────────────────────────
@@ -248,7 +161,6 @@ high_pct     = risk_counts.get("High", 0) / total * 100 if total else 0
 st.markdown('<div class="block-title">📊 Portfolio Health</div>', unsafe_allow_html=True)
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
-
 with k1:
     st.metric("Total Loans", f"{total:,}",
               help="Total number of loans in the current filtered view.")
@@ -256,27 +168,27 @@ with k2:
     st.metric("Default Rate", f"{default_rate:.1f}%",
               delta="Critical" if default_rate > 20 else "Watch" if default_rate > 12 else "Healthy",
               delta_color="inverse" if default_rate > 12 else "normal",
-              help="Below 12% = healthy. Above 12% = watch. Above 20% = critical.")
+              help="How many loans failed out of 100. Below 12% = healthy. Above 12% = watch. Above 20% = critical.")
 with k3:
     st.metric("Avg Credit Score", f"{avg_credit:.0f}",
               delta="Risky — below 670" if avg_credit < 670 else "Safe — above 670",
               delta_color="inverse" if avg_credit < 670 else "normal",
-              help="Scale 300–850. Safe line is 670.")
+              help="Average credit score. Scale is 300–850. The safe line is 670 — below it default rates rise sharply.")
 with k4:
     st.metric("Avg DTI Ratio", f"{avg_dti:.2f}",
               delta="Risky — above 0.5" if avg_dti > 0.5 else "Safe — below 0.5",
               delta_color="inverse" if avg_dti > 0.5 else "normal",
-              help="Debt-to-Income. Above 0.5 is dangerous.")
+              help="DTI = Debt-to-Income. How much of monthly income already goes to debt payments. Above 0.5 is dangerous.")
 with k5:
     st.metric("Avg LTI Ratio", f"{avg_lti:.2f}",
               delta="Overextended — above 4" if avg_lti > 4 else "Manageable",
               delta_color="inverse" if avg_lti > 4 else "normal",
-              help="Loan-to-Income. Above 4 means borrower is very stretched.")
+              help="LTI = Loan-to-Income. Loan amount divided by annual income. Above 4 means borrower is very stretched.")
 with k6:
     st.metric("High Risk Loans", f"{high_pct:.1f}%",
               delta=f"{risk_counts.get('High', 0):,} loans in danger",
               delta_color="inverse" if high_pct > 25 else "off",
-              help="Above 25% is serious.")
+              help="Percentage scored as High Risk using DTI + Credit Score + Employment + LTI + Co-Signer. Above 25% is serious.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 2 — WHICH LOAN TYPE IS THE PROBLEM?
@@ -293,10 +205,7 @@ with col1:
     purpose_stats["DefaultRate"] = (purpose_stats["Defaults"] / purpose_stats["Count"] * 100).round(1)
     purpose_stats = purpose_stats.sort_values("DefaultRate", ascending=True)
 
-    bar_colors = [
-        HIGH if r > 20 else MID if r > 12 else SAFE
-        for r in purpose_stats["DefaultRate"]
-    ]
+    bar_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in purpose_stats["DefaultRate"]]
 
     fig1 = go.Figure(go.Bar(
         x=purpose_stats["DefaultRate"],
@@ -306,7 +215,7 @@ with col1:
         marker_line=dict(width=0),
         text=[f"{r:.1f}%  ({c:,} loans)" for r, c in zip(purpose_stats["DefaultRate"], purpose_stats["Count"])],
         textposition="outside",
-        textfont=dict(size=13, color="#b5f5d0"),
+        textfont=dict(size=13, color="#d4f5e2"),
     ))
     fig1.add_vline(x=12, line_dash="dash", line_color=MID,
                    annotation_text="Watch (12%)", annotation_position="top right",
@@ -347,8 +256,8 @@ with col2:
     )
     fig2.update_layout(
         **C, title="Loan Risk Bubble — DTI vs LTI",
-        xaxis=dict(title="DTI Level  →  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
-        yaxis=dict(title="LTI Level  ↑  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
+        xaxis=dict(title="DTI Level (Debt vs Income)  →  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
+        yaxis=dict(title="LTI Level (Loan vs Income)  ↑  Higher = More Risk", tickfont=dict(size=12), gridcolor="#122b1c"),
         height=360, coloraxis_colorbar=dict(title="Default %")
     )
     st.plotly_chart(fig2, use_container_width=True)
@@ -372,10 +281,7 @@ with col3:
     ).reset_index()
     credit_stats["DefaultRate"] = (credit_stats["Defaults"] / credit_stats["Total"] * 100).round(1)
 
-    dot_colors = [
-        HIGH if r > 20 else MID if r > 12 else SAFE
-        for r in credit_stats["DefaultRate"]
-    ]
+    dot_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in credit_stats["DefaultRate"]]
 
     fig3 = go.Figure()
     fig3.add_trace(go.Scatter(
@@ -412,10 +318,7 @@ with col4:
     emp_stats["DefaultRate"] = (emp_stats["Defaults"] / emp_stats["Total"] * 100).round(1)
     emp_stats = emp_stats.sort_values("DefaultRate", ascending=False)
 
-    emp_colors = [
-        HIGH if r > 20 else MID if r > 12 else SAFE
-        for r in emp_stats["DefaultRate"]
-    ]
+    emp_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in emp_stats["DefaultRate"]]
 
     fig4 = go.Figure(go.Bar(
         x=emp_stats["EmploymentType"],
@@ -438,7 +341,7 @@ with col4:
         height=340,
     )
     st.plotly_chart(fig4, use_container_width=True)
-    st.markdown('<div class="hint">Unemployed borrowers default roughly 3× more than full-time borrowers</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hint">Unemployed borrowers default roughly 3x more than full-time borrowers</div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SECTION 4 — TWO QUICK WINS
@@ -494,10 +397,7 @@ with col6:
     edu_stats["Education"]   = pd.Categorical(edu_stats["Education"], categories=edu_order, ordered=True)
     edu_stats = edu_stats.sort_values("Education")
 
-    dot_colors = [
-        HIGH if r > 20 else MID if r > 12 else SAFE
-        for r in edu_stats["DefaultRate"]
-    ]
+    dot_colors = [HIGH if r > 20 else MID if r > 12 else SAFE for r in edu_stats["DefaultRate"]]
 
     fig6 = go.Figure()
     fig6.add_trace(go.Scatter(
