@@ -1,92 +1,112 @@
+<div align="center">
 
-=======================================================
-STEP 1: LOAD DATA
+# 💳 Loan Risk Dashboard
 
-We load the raw CSV file and check its size.
-  Rows    : 255,347  (each row = one loan)
-  Columns : 18   (each column = one piece of information)
-=======================================================
-STEP 2: BASIC CHECKS
+*An interactive dashboard that turns loan risk data into decisions — before it's too late.*
+</div>
 
-Checking for missing values, duplicate rows, and duplicate IDs.
-These are the three most common problems in real datasets.
+---
 
-  Missing values  : 0  ✓ No action needed
-  Duplicate rows  : 0   ✓ No action needed
-  Duplicate IDs   : 0   ✓ No action needed
-=======================================================
-STEP 3: VALIDITY CHECKS
+## 📌 Project Overview
 
-Checking that all numbers are within realistic ranges.
-Example: age must be 18+, credit score must be 300-850 (300–850 is the official FICO credit score range created in 1989.).
+Credit default is one of the most consequential risks a lending institution faces. A single percentage point increase in the default rate can wipe out significant portfolio value, yet many lenders still rely on intuition or siloed reports to make approval decisions. Traditionally, understanding loan risk required analysts to spend considerable time manually gathering data from disparate sources, cross-referencing borrower records, and running reports that were often outdated by the time they reached decision-makers. This slow, fragmented process is not just inefficient — it is dangerous. Delayed or incomplete risk analysis can lead to catastrophic outcomes, including mass defaults across an unmonitored segment, cascading portfolio losses, and in severe cases, institutional insolvency. This project set out to address that gap by answering a deceptively simple question: *who defaults, and why — and how quickly can we see it?*
 
-  Age < 18 (below legal borrowing age)       → ✓ OK
-  Age > 100 (unrealistic age)                → ✓ OK
-  CreditScore < 300 (below minimum)          → ✓ OK
-  CreditScore > 850 (above maximum)          → ✓ OK
-  Income < 0 (impossible)                    → ✓ OK
-  LoanAmount < 0 (impossible)                → ✓ OK
-  DTIRatio < 0 (impossible)                  → ✓ OK
-  DTIRatio > 1 (above 100% of income)        → ✓ OK
-  InterestRate < 0 (impossible)              → ✓ OK
-  InterestRate > 100 (unrealistic)           → ✓ OK
-  MonthsEmployed < 0 (impossible)            → ✓ OK
+The Loan Risk Dashboard is an interactive, real-time analytical tool built to give loan officers, risk analysts, and portfolio managers a clear, evidence-based view of default risk across their loan book. By replacing slow manual analysis with an always-current visual interface, it eliminates the lag between when risk emerges and when it is detected. Rather than presenting raw numbers in isolation, the dashboard surfaces the relationships between borrower characteristics — credit score, income ratios, employment status, education level, and co-signer presence — and actual default outcomes. The goal is not just to describe the past but to give decision-makers the pattern recognition they need to act before a manageable problem becomes a catastrophic one.
 
-=======================================================
-STEP 4: INCONSISTENCY CHECK
+---
 
-Checking for values that conflict with each other.
-Example: a borrower listed as Unemployed but has months employed > 0.
+## 🗂️ Data Source
 
-  Unemployed borrowers with MonthsEmployed > 0 : 63,292
+> 📦 **Source:** [Loan Default Dataset — Kaggle](https://www.kaggle.com/datasets/nikhil1e9/loan-default/data) by Nikhil1e9
 
-  Decision: KEEP these rows.
-  Reason  : MonthsEmployed likely represents total past work history,
-            not current job duration. An unemployed person can still
-            have 5 years of past employment experience.
-=======================================================
-STEP 5: CLASS BALANCE CHECK
+The dataset contains individual-level borrower records covering financial attributes such as credit score, debt-to-income ratio, and loan amount, as well as demographic information including employment type, education level, and co-signer status. Each record also includes the loan purpose and a binary default outcome indicating whether the loan was repaid or defaulted on. Before being used in the dashboard, the data was cleaned and transformed in a separate `data_preprocessing.py` script — where two additional features were engineered: `LTIRatio` (loan amount divided by annual income) and `RiskTier` (a composite Low/Medium/High risk classification) — and saved as `Loan_default_clean.csv`.
 
-Checking how many loans defaulted vs did not default.
-  No Default (0) : 225,694  (88.4%)
-  Defaulted  (1) : 29,653  (11.6%)
+---
 
-  Note: Dataset is imbalanced (88% vs 12%).
-  For dashboard → no problem, charts work fine.
-  For ML model  → handle with oversampling or class weights.
-=======================================================
-STEP 6: FEATURE ENGINEERING
+## 🔬 Steps & Methodology
 
-Creating 2 new columns that give more insight than raw numbers.
+The project moved through five clear stages to go from raw data to a working dashboard.
 
-  NEW COLUMN 1: LTIRatio
-  Formula : LoanAmount ÷ Income
-  
-  Min  → the single smallest  value in the entire dataset
-Max  → the single largest  value in the entire dataset
-Mean → the average of all 255,347 LTI values added together
+### 🧹 Data Cleaning
+The raw dataset came in clean: no missing values, no duplicate rows, and no duplicate IDs, so no records needed to be removed or filled in. All numerical fields were validated against realistic ranges — credit scores between 300 and 850, ages between 18 and 100, and all financial values above zero. One inconsistency was found: 63,292 borrowers were marked as unemployed but had employment history recorded. These were kept, as the field likely captures past work experience rather than current job status.
 
-  Meaning : How many times their yearly salary did they borrow?
-  Min     : 0.03  (borrowed almost nothing vs income)
-  Max     : 16.53  (borrowed 16x their annual salary)
-  Mean    : 2.18  (average borrower borrowed 2x salary)
-  Safe    : Below 4.0  |  Dangerous: Above 4.0
+### ⚙️ Transformation
+Two new columns were created to make the data more useful for analysis. `LTIRatio` (Loan-to-Income) divides the loan amount by the borrower's annual income, showing how much they borrowed relative to what they earn — values above 4.0 are considered dangerous. `RiskTier` combines five factors (DTI, credit score, employment type, LTI, and co-signer presence) into a single Low, Medium, or High risk label for each borrower. The final clean file contains 255,347 rows and 20 columns.
 
-  NEW COLUMN 2: RiskTier
-  Formula : Score from DTI + CreditScore + Employment + LTI + CoSigner
-  Meaning : Overall risk level of each loan in one simple label
-  Low     : 90,520 loans  (35.4%)  — safe borrowers
-  Medium  : 119,680 loans  (46.9%)  — watch closely
-  High    : 45,147 loans  (17.7%)  — danger zone
+### 📊 Analysis Approach
+Default rate was used as the single consistent metric across all charts, defined as the percentage of loans that ended in default within each group. Two threshold lines — 12% (Watch) and 20% (Critical) — appear on every chart so comparisons are always meaningful and immediate.
 
-=======================================================
-STEP 7: SAVE CLEAN FILE
+### 🛠️ Tool Selection
 
-Saving the processed dataset as a new file.
-The original Loan_default.csv is kept untouched.
+| Tool | Role |
+|------|------|
+| `Python` | Core language |
+| `Pandas` | Data loading & aggregation |
+| `Streamlit` | Web application framework |
+| `Plotly` | Interactive charts |
+| `data_preprocessing.py` | Separate cleaning & feature engineering script |
 
-  Saved   → Loan_default_clean.csv
-  Rows    : 255,347
-  Columns : 20  (original 18 + LTIRatio + RiskTier)
+### 🎨 Design Decisions
+The entire dashboard follows one rule: a user should understand the risk within seconds of opening it. Every chart uses the same three-colour system — 🟢 green for healthy, 🟡 amber for watch, 🔴 red for critical. Three filters at the top (loan purpose, employment type, risk tier) let users instantly narrow the view to any segment they care about.
 
+---
 
+## 📸 Dashboard Screenshots
+
+> *Add screenshots of the live dashboard here. Recommended sections to capture: the Portfolio Health metrics row, the Default Rate by Loan Purpose chart, and the Co-Signer comparison.*
+
+```
+![Portfolio Health](screenshots/portfolio_health.png)
+![Loan Purpose Risk](screenshots/loan_purpose.png)
+![Co-Signer Impact](screenshots/cosigner.png)
+```
+
+---
+
+## 🖌️ Design Screenshots
+
+> *If wireframes or mockups were created in Figma, Excalidraw, or similar tools, embed them here.*
+
+```
+![Wireframe](design/wireframe_v1.png)
+```
+
+---
+
+## 💡 Key Insights
+
+> The dashboard reveals four insights that any lender should act on.
+
+### 1. 📉 Credit Score Is Your Best Filter
+The data is clear — borrowers below 580 default at nearly three times the rate of those above 670. The decline is steep, consistent, and holds across every loan type. A minimum credit score threshold of 670 is the single most impactful change a lender can make to reduce portfolio risk.
+
+### 2. ⚠️ Unemployed Borrowers Carry Outsized Risk
+Regardless of loan purpose or amount, unemployed borrowers default roughly three times more than full-time employees. Approving loans for unemployed applicants without additional safeguards is one of the clearest risk exposures in the portfolio.
+
+### 3. 🤝 A Co-Signer Is a Simple Safety Net
+Across every loan category — home, auto, education, business — loans with a co-signer consistently default less, often by 5 to 8 percentage points. It costs nothing to require one, and the data shows it works every time.
+
+### 4. 🚨 Watch Borrowers Stretched on Both Ratios
+When a borrower has both a high Debt-to-Income ratio and a high Loan-to-Income ratio, they are under pressure from two directions at once — too much existing debt and too large a new loan relative to their income. This combination produces the highest default rates in the entire dataset and should always trigger a manual review.
+
+---
+
+## 🔗 Live Dashboard Link
+
+[![Open Dashboard](https://img.shields.io/badge/Open%20Live%20Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://your-streamlit-app.streamlit.app)
+
+---
+
+## ⚠️ Assumptions & Limitations
+
+Several assumptions underpin the analysis. The binary `Default` column is treated as a clean, verified outcome label — no attempt was made to audit or validate individual records, so any labeling errors in the source data propagate directly into the default rates shown. The risk tier thresholds (12% and 20%) were chosen based on common industry benchmarks rather than derived statistically from this specific dataset, which means they may not be optimally calibrated for every lender's risk appetite.
+
+The dataset does not include a time dimension, so it is not possible to assess whether default patterns have shifted over time or whether the portfolio has seasonal characteristics. Similarly, the data does not capture loan officer behavior, regional economic conditions, or macroeconomic context — all of which influence default rates in practice. The dashboard is best interpreted as a diagnostic tool for understanding structural risk drivers within the existing portfolio, not as a predictive model for future defaults.
+
+---
+
+<div align="center">
+
+*Loan Risk Dashboard · Data: Kaggle · Built with Streamlit & Plotly*
+
+</div>
