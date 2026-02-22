@@ -33,48 +33,52 @@ st.markdown("""
     }
 
     /* Metrics */
-    [data-testid="stMetricLabel"] { font-size: 13px !important; color: #52a871 !important; font-weight: 600 !important; }
-    [data-testid="stMetricValue"] { font-size: 28px !important; font-weight: 700 !important; color: #d4f5e2 !important; }
+    [data-testid="stMetricLabel"] { font-size: 13px !important; color: #6b7280 !important; font-weight: 600 !important; }
+    [data-testid="stMetricValue"] { font-size: 28px !important; font-weight: 700 !important; color: #111827 !important; }
     [data-testid="stMetricDelta"] { font-size: 12px !important; }
     [data-testid="metric-container"] {
-        background: linear-gradient(145deg, #0d2b18, #0a2014);
-        border: 1px solid #1a4d2e;
+        background: linear-gradient(145deg, #ffffff, #f3f4f6);
+        border: 1px solid #e5e7eb;
         border-radius: 10px;
         padding: 14px 16px 10px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        transition: border-color 0.2s ease;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    [data-testid="metric-container"]:hover { border-color: #39d98a; }
+    [data-testid="metric-container"]:hover {
+        border-color: #39d98a;
+        box-shadow: 0 4px 16px rgba(57,217,138,0.2);
+    }
 
     /* Section titles */
     .block-title {
-        font-size: 16px; font-weight: 700; color: #d4f5e2;
+        font-size: 16px; font-weight: 700; color: #111827;
         padding: 6px 12px;
-        background: linear-gradient(90deg, #0d2b18, #071a0f);
+        background: linear-gradient(90deg, #f9fafb, #f3f4f6);
         border-left: 4px solid #39d98a;
         border-radius: 4px; margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
     /* Hint boxes */
     .hint {
-        font-size: 12px; color: #3a7a55; margin-top: 6px;
+        font-size: 12px; color: #6b7280; margin-top: 6px;
         padding: 6px 10px;
-        background: #071a0f;
-        border: 1px solid #122b1c;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
         border-radius: 4px;
     }
 
     /* Dividers */
-    hr { border-color: #122b1c !important; margin: 0.3rem 0 !important; }
+    hr { border-color: #e5e7eb !important; margin: 0.3rem 0 !important; }
 
     /* Selectboxes */
     [data-testid="stSelectbox"] > div > div {
-        background: #0d2b18 !important;
-        border: 1px solid #1a4d2e !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
         border-radius: 8px !important;
-        color: #d4f5e2 !important;
+        color: #111827 !important;
     }
-    [data-testid="stSelectbox"] label { color: #52a871 !important; font-size: 13px !important; }
+    [data-testid="stSelectbox"] label { color: #6b7280 !important; font-size: 13px !important; }
 
     /* Caption & scrollbar */
     .stCaption { color: #2a5c3c !important; font-size: 11px !important; }
