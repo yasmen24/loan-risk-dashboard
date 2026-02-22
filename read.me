@@ -1,0 +1,92 @@
+
+=======================================================
+STEP 1: LOAD DATA
+
+We load the raw CSV file and check its size.
+  Rows    : 255,347  (each row = one loan)
+  Columns : 18   (each column = one piece of information)
+=======================================================
+STEP 2: BASIC CHECKS
+
+Checking for missing values, duplicate rows, and duplicate IDs.
+These are the three most common problems in real datasets.
+
+  Missing values  : 0  ✓ No action needed
+  Duplicate rows  : 0   ✓ No action needed
+  Duplicate IDs   : 0   ✓ No action needed
+=======================================================
+STEP 3: VALIDITY CHECKS
+
+Checking that all numbers are within realistic ranges.
+Example: age must be 18+, credit score must be 300-850 (300–850 is the official FICO credit score range created in 1989.).
+
+  Age < 18 (below legal borrowing age)       → ✓ OK
+  Age > 100 (unrealistic age)                → ✓ OK
+  CreditScore < 300 (below minimum)          → ✓ OK
+  CreditScore > 850 (above maximum)          → ✓ OK
+  Income < 0 (impossible)                    → ✓ OK
+  LoanAmount < 0 (impossible)                → ✓ OK
+  DTIRatio < 0 (impossible)                  → ✓ OK
+  DTIRatio > 1 (above 100% of income)        → ✓ OK
+  InterestRate < 0 (impossible)              → ✓ OK
+  InterestRate > 100 (unrealistic)           → ✓ OK
+  MonthsEmployed < 0 (impossible)            → ✓ OK
+
+=======================================================
+STEP 4: INCONSISTENCY CHECK
+
+Checking for values that conflict with each other.
+Example: a borrower listed as Unemployed but has months employed > 0.
+
+  Unemployed borrowers with MonthsEmployed > 0 : 63,292
+
+  Decision: KEEP these rows.
+  Reason  : MonthsEmployed likely represents total past work history,
+            not current job duration. An unemployed person can still
+            have 5 years of past employment experience.
+=======================================================
+STEP 5: CLASS BALANCE CHECK
+
+Checking how many loans defaulted vs did not default.
+  No Default (0) : 225,694  (88.4%)
+  Defaulted  (1) : 29,653  (11.6%)
+
+  Note: Dataset is imbalanced (88% vs 12%).
+  For dashboard → no problem, charts work fine.
+  For ML model  → handle with oversampling or class weights.
+=======================================================
+STEP 6: FEATURE ENGINEERING
+
+Creating 2 new columns that give more insight than raw numbers.
+
+  NEW COLUMN 1: LTIRatio
+  Formula : LoanAmount ÷ Income
+  
+  Min  → the single smallest  value in the entire dataset
+Max  → the single largest  value in the entire dataset
+Mean → the average of all 255,347 LTI values added together
+
+  Meaning : How many times their yearly salary did they borrow?
+  Min     : 0.03  (borrowed almost nothing vs income)
+  Max     : 16.53  (borrowed 16x their annual salary)
+  Mean    : 2.18  (average borrower borrowed 2x salary)
+  Safe    : Below 4.0  |  Dangerous: Above 4.0
+
+  NEW COLUMN 2: RiskTier
+  Formula : Score from DTI + CreditScore + Employment + LTI + CoSigner
+  Meaning : Overall risk level of each loan in one simple label
+  Low     : 90,520 loans  (35.4%)  — safe borrowers
+  Medium  : 119,680 loans  (46.9%)  — watch closely
+  High    : 45,147 loans  (17.7%)  — danger zone
+
+=======================================================
+STEP 7: SAVE CLEAN FILE
+
+Saving the processed dataset as a new file.
+The original Loan_default.csv is kept untouched.
+
+  Saved   → Loan_default_clean.csv
+  Rows    : 255,347
+  Columns : 20  (original 18 + LTIRatio + RiskTier)
+
+
