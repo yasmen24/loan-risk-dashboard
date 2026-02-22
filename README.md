@@ -35,17 +35,14 @@ The project moved through five clear stages to go from raw data to a working das
 ## 📸 Dashboard Screenshots
 
 <img width="2874" height="1264" alt="image" src="https://github.com/user-attachments/assets/0b5914bd-9e85-4c02-b99c-b469172f930f" />
-<img width="2802" height="1371" alt="image" src="https://github.com/user-attachments/assets/eb63b7be-0470-4995-af4a-7f6b89ffbccd" />
+<img width="2874" height="1264" alt="image" src="https://github.com/user-attachments/assets/eb63b7be-0470-4995-af4a-7f6b89ffbccd" />
 
 ---
 
 ## 🖌️ Design Screenshots
 
-> *If wireframes or mockups were created in Figma, Excalidraw, or similar tools, embed them here.*
+<img width="1000" height="1087" alt="image" src="https://github.com/user-attachments/assets/34c5cbe4-d72d-4f2f-b73a-befaf1861145" />
 
-```
-![Wireframe](design/wireframe_v1.png)
-```
 
 ---
 
