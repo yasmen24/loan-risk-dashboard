@@ -24,7 +24,22 @@ st.markdown("""
         font-size: 12px; color: #718096; margin-top: 6px;
         padding: 6px 10px; background: #1a202c; border-radius: 4px;
     }
-    .main .block-container { padding-top: 0.5rem !important; }
+    /* Reduce header space */
+    .main .block-container {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+    h2 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        margin-bottom: 0.25rem !important;
+        line-height: 1.2 !important;
+    }
+    /* Collapse gap between header and filters */
+    [data-testid="stMarkdownContainer"] h2 + div,
+    [data-testid="stVerticalBlock"] > div:first-child {
+        margin-top: 0 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
